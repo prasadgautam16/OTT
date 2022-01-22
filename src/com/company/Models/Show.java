@@ -1,6 +1,7 @@
-package com.company.show;
+package com.company.Models;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.Arrays;
 
 public class Show {
 
@@ -10,14 +11,14 @@ public class Show {
     private String director;
     private String cast;
     private String country;
-    private String date_added;
+    private LocalDate date_added;
     private String release_year;
     private String rating;
     private String duration;
-    private String listed_in;
+    private String[] listed_in;
     private String description;
 
-    public Show(String showId, String type, String title, String director, String cast, String country, String date_added, String release_year, String rating, String duration, String listed_in, String description) {
+    public Show(String showId, String type, String title, String director, String cast, String country, LocalDate date_added, String release_year, String rating, String duration, String[] listed_in, String description) {
         this.showId = showId;
         this.type = type;
         this.title = title;
@@ -38,7 +39,7 @@ public class Show {
                 + ", title=" + title + ", director=" + director
                 + ", cast=" + cast + ", country=" + country + ", date_added=" + date_added
                 + ", release_year=" + release_year + ", rating=" + rating + ", duration=" + duration
-                + ", listed_in=" + listed_in + ", description=" + description + "]";
+                + ", listed_in=" + Arrays.toString(listed_in) + ", description=" + description + "]";
     }
 
     public String getShowId() {
@@ -89,16 +90,24 @@ public class Show {
         this.country = country;
     }
 
-    public String getDate_added() {
+    public LocalDate getDate_added() {
         return date_added;
     }
 
-    public void setDate_added(String date_added) {
+    public void setDate_added(LocalDate date_added) {
         this.date_added = date_added;
     }
 
     public String getRelease_year() {
         return release_year;
+    }
+
+    public String[] getListed_in() {
+        return listed_in;
+    }
+
+    public void setListed_in(String[] listed_in) {
+        this.listed_in = listed_in;
     }
 
     public void setRelease_year(String release_year) {
@@ -119,14 +128,6 @@ public class Show {
 
     public void setDuration(String duration) {
         this.duration = duration;
-    }
-
-    public String getListed_in() {
-        return listed_in;
-    }
-
-    public void setListed_in(String listed_in) {
-        this.listed_in = listed_in;
     }
 
     public String getDescription() {

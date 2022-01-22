@@ -1,14 +1,14 @@
 package com.company;
 
-import com.company.show.Show;
+import com.company.Models.Show;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class CSVReader {
 
@@ -17,24 +17,84 @@ public class CSVReader {
         System.out.println("Enter a Number to show number of record : ");
         Scanner sc = new Scanner(System.in);
         int n = sc.nextInt();
+        long start = System.currentTimeMillis();
         System.out.println("Enter a Number is : " + n);
         List<Show> showList = getShowDetails(n, path);
-        for(Show show:showList){
+
+
+//        List<Show> showMovieType = showList.stream()
+//                .filter(s -> s.getType().equalsIgnoreCase("TV Show"))
+//                .toList();
+//        for(Show show:showMovieType){
+//            System.out.println(show.toString());
+//        }
+
+
+
+
+//        List<Show> showListedIn = showList.stream()
+//                .filter(s -> Arrays.stream(s.getListed_in()).anyMatch("Dramas"::equalsIgnoreCase))
+//                .toList();
+//        for(Show show:showListedIn){
+//            System.out.println(show.toString());
+//        }
+
+
+
+//        List<Show> showTypeAndCountry = showList.stream()
+//                .filter(s -> {
+//                    String country = s.getCountry();
+//                    String type = s.getType();
+//                    if (null != type && null != country) {
+//                        return type.equalsIgnoreCase("TV Show") && country.equalsIgnoreCase("India");
+//                    }
+//                    return false;
+//                })
+//                .toList();
+//        for(Show show:showTypeAndCountry){
+//            System.out.println(show.toString());
+//        }
+
+
+        System.out.println("Enter a from date in YYYY-MM-DD : ");
+        String from = sc.next();
+        System.out.println("Enter a to date in YYYY-MM-DD : ");
+        String to = sc.next();
+        List<Show> showBasedOnDate = showList.stream()
+                .filter(s -> {
+                    LocalDate fromDate = LocalDate.parse(from);
+                    LocalDate toDate =  LocalDate.parse(to);
+                    LocalDate showDate = s.getDate_added();
+                    if (null != showDate) {
+                        return (fromDate.isBefore(showDate) && toDate.isAfter(showDate));
+                    }
+                    return false;
+                })
+                .toList();
+        for(Show show:showBasedOnDate){
             System.out.println(show.toString());
         }
+
+
+        // time end
+        long end = System.currentTimeMillis();
+        System.out.println("Function took : " + (end - start) + "ms");
     }
+
+
+
+
 
     private static List<Show> getShowDetails(int n, String file) {
         List<Show> showList =new ArrayList<>();
         String line;
         int i = 0;
         try {
-            long start = System.currentTimeMillis();
-            // time start
+
             BufferedReader br = new BufferedReader(new FileReader(file));
 
-            while( n > i && (line = br.readLine()) != null) {
-//                System.out.println("Line by Line : " + line);
+            while( n >= i && (line = br.readLine()) != null) {
+
                 String [] attributes = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 
                 if (i > 0) {
@@ -43,13 +103,7 @@ public class CSVReader {
                 }
                 i++;
             }
-            // time end
-            long end = System.currentTimeMillis();
 
-            System.out.println("Function took : " + (end - start) + "ms");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,8 +111,9 @@ public class CSVReader {
     }
 
     private static Show getOneShow(String[] attributes) {
-        String showId , type, title, director, cast, country, date_added, release_year, rating, duration, listed_in, description = null;
-
+        String showId , type, title, director, cast, country, release_year, rating, duration, description;
+        LocalDate date_added;
+        String [] listed_in;
         try{
             showId = attributes[0].equalsIgnoreCase("") ? null : attributes[0];
         }
@@ -84,9 +139,10 @@ public class CSVReader {
         }
         catch(Exception e){country = null;}
         try{
-            date_added = attributes[6].equalsIgnoreCase("") ? null : attributes[6];
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
+            date_added = attributes[6].equalsIgnoreCase("") ? null : LocalDate.parse(attributes[6].replaceAll("^\"|\"$", ""), formatter);
         }
-        catch(Exception e){date_added = null;}
+        catch(Exception e){ date_added=null; }
         try{
             release_year = attributes[7].equalsIgnoreCase("") ? null : attributes[7];
         }
@@ -100,72 +156,56 @@ public class CSVReader {
         }
         catch(Exception e){duration = null;}
         try{
-            listed_in = attributes[10].equalsIgnoreCase("") ? null : attributes[10];
+            listed_in = attributes[10].equalsIgnoreCase("") ? null : attributes[10].split(", ");
         }
         catch(Exception e){listed_in = null;}
         try{
             description = attributes[11].equalsIgnoreCase("") ? null : attributes[11];
         }
         catch(Exception e){description = null;}
-//        try {
-//            showId = attributes[0];
-//            type = attributes[1];
-//            title = attributes[2];
-//            director = attributes[3];
-//            cast = attributes[4];
-//            country = attributes[5];
-//            date_added = attributes[6];
-//            release_year = attributes[7];
-//            rating = attributes[8];
-//            duration = attributes[9];
-//            listed_in = attributes[10];
-//            description = attributes[11];
-//
-//        } catch (ArrayIndexOutOfBoundsException e) {
-//            e.printStackTrace();
-//        }
-        Show show = new Show(showId, type, title, director, cast, country, date_added, release_year, rating, duration, listed_in, description);
-        return show;
 
-    }
-}
+        return new Show(showId, type, title, director, cast, country, date_added, release_year, rating, duration, listed_in, description);
+     }
 
-
-//    public static void main(String[] args) {
-//        // write your code here
-//        String path = "C:\\Users\\hp\\IdeaProjects\\OTT\\src\\com\\company\\data\\netflix_titles.csv";
-//        String line;
-//        int i = 0;
-//        try {
-//            System.out.println("Enter a Number to show number of record : ");
-//            Scanner sc = new Scanner(System.in);
-//            int n = sc.nextInt();
-////            int n = 2;
-//            System.out.println("Enter a Number is : " + n);
-//            long start = System.currentTimeMillis();
-//            // time start
-//            BufferedReader br = new BufferedReader(new FileReader(path));
+    //    private static Show getOneShow(String[] attributes) {
+//        String showId, type, title, director, cast, country, release_year, rating, duration, listed_in, description = null;
+//        LocalDate date_added;
 //
-//            while( n > i && (line = br.readLine()) != null) {
-//                System.out.println("Line by Line : " + line);
+//        showId = validateString(attributes[0]);
+//        type = validateString(attributes[1]);
+//        title = validateString(attributes[2]);
+//        director = validateString(attributes[3]);
+//        cast = validateString(attributes[4]);
+//        country = validateString(attributes[5]);
+//        date_added = validateDate(attributes[6]);
+//        release_year = validateString(attributes[7]);
+//        rating = validateString(attributes[8]);
+//        duration = validateString(attributes[9]);
+//        listed_in = validateString(attributes[10]);
+//        description = validateString(attributes[11]);
 //
-//                String[] values = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-//                if (i > 0) {
-//                    for (int j = 0; j < values.length; j++) {
+//        Show show = new Show(showId, type, title, director, cast, country, date_added, release_year, rating, duration, listed_in, description);
+//        return show;
 //
-//                        System.out.println("Each Data " + values[j]);
-//                    }
-//                }
-//                i++;
-//            }
-//            // time end
-//            long end = System.currentTimeMillis();
-//
-//            System.out.println("Function took : " + (end - start) + "ms");
-//
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 //    }
+
+//    private static String validateString(String attribute) {
+//        String value = null;
+//        try{
+//            value = attribute.equalsIgnoreCase("") ? null : attribute;
+//        }
+//        catch(Exception e){return null;}
+//
+//        return value;
+//    }
+
+//    private static LocalDate validateDate(String attribute) {
+//        LocalDate value;
+//        try{
+//            value = attribute.equalsIgnoreCase("") ? null : LocalDate.parse(attribute);
+//        }
+//        catch(Exception e){return null;}
+//
+//        return value;
+//    }
+}
