@@ -1,9 +1,8 @@
 package com.company;
 
-import com.company.Models.Show;
+import com.company.models.Show;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
